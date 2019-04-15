@@ -1,0 +1,30 @@
+{
+  "name": "snake-ladder",
+  "version": "0.0.1",
+  "description": "A snake and ladder project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phildkevin/snake-ladder.git"
+  },
+  "author": "Phil Kevin Pacia, Jezer Dave Bacquian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phildkevin/snake-ladder/issues"
+  },
+  "homepage": "https://github.com/phildkevin/snake-ladder#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.4",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "moment": "^2.24.0",
+    "mongodb": "^3.2.3",
+    "redis": "^2.8.0",
+    "uuidv4": "^4.0.0"
+  }
+}
