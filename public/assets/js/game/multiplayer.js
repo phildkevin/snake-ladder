@@ -1,5 +1,6 @@
 let room = "";
 let players = [];
+let turn    = 1;
 
 let matchMaking = () =>{
   let name = localStorage.getItem('name');
@@ -18,6 +19,13 @@ let plotGamePlayerList = (players) =>{
   }
 }
 
+let sendDicePosition = (position) =>{
+  let data = {action: "roll", position};
+  if(turn == 1){
+    mqClient.publish(room, JSON.stringify(data));
+  }
+}
+
 matchMaking();
 
 
@@ -32,6 +40,11 @@ mqClient.on('message', (topic, data) =>{
       room    = data.room;
       players = data.players;
       break;
+    // case room:
+    //     if(data.action == "roll"){
+    //       plotDice(data);
+    //     }
+    //   break;
   }
     
 });

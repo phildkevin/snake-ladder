@@ -10,7 +10,11 @@ exports.initialize = (redis, uuid, config) => {
     data = JSON.parse(data.toString())
     switch (topic){
       case "matchmaking":
-        matchmake(data)
+        matchmake(data);
+        break;
+      case "leavematch":
+        leavematch(data);
+        break;
     }
   })
 
@@ -18,6 +22,13 @@ exports.initialize = (redis, uuid, config) => {
   let matchmake = (data) =>{
     console.log("Player matchmaking: " + data.client_id);
     redis.HSET("matchmaking", data.client_id, data.name);
+  }
+
+  let leavematch = (data) =>{
+    if(data.room != ""){
+      console.log(`Player ${data.client_id} left the game ${data.room}`);
+      mqttClient.publish(data.room, {"action" : "leavematch", "client_id" : data.client_id});
+    }
   }
 
 
@@ -30,26 +41,29 @@ exports.initialize = (redis, uuid, config) => {
         if(res !== null){
           var data = Object.entries(res)
           if(Object.keys(res).length >= 2){
+
+            
+
             let p1 = {client_id: data[0][0], name: data[0][1]};
             let p2 = {client_id: data[1][0], name: data[1][1]};
             let players = [p1, p2];
 
-            let room = uuid();
-            let send = {players, room};
-
             redis.HDEL("matchmaking", p1.client_id);
             redis.HDEL("matchmaking", p2.client_id);
+
+            let room = "room_" + uuid();
+            let send = {players, room};
 
             mqttClient.publish(p1.client_id, JSON.stringify(send));
             mqttClient.publish(p2.client_id, JSON.stringify(send));
 
-            console.log(`Matchmaked: ${p1.name} and ${p2.name}` )
+            console.log(`[Matchmaked]: ${p1.name} and ${p2.name}` )
           }
         }
       }
     })
 
-  },1000);
+  },500);
 
   
 
