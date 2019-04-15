@@ -1,24 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Snake and Ladder</title>
-	<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/bootstrap/fa/css/font-awesome.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
-  <script type="text/javascript" src="assets/js/jquery.min.js"></script>
-  <script type="text/javascript" src="assets/js/mqtt.min.js"></script>
-  <script type="text/javascript" src="assets/js/game/global.js"></script>
-  <script type="text/javascript" src="assets/js/game/game.js"></script>
-  <script type="text/javascript" src="assets/js/game/multiplayer.js"></script>
-</head>
-<body>
+<% include ./template/header %>
 
-<div class="container mt-50">
+<div class="container-fluid pd-a-20">
 	<div class="row">
-		<div class="col-md-9">
+		<div class="col-md-3">
+			<div class="other-player-container">
+				<h3 class="header-title">PLAYERS</h3>
+				<hr>
+				<div id="other-player-list">
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
 			<table class="table table-striped table-bordered main_table" id="main_table">
 				<tbody>
-					<img class="ladder1" src="assets/images/ladder.png">
+					<img class="ladder1 hide" src="assets/images/ladder.png">
 					<tr class="col_10">
 						<td  align="center" class="100" data-value="100"><i class="fa fa-flag"></i></td>		
 					</tr>
@@ -52,34 +48,12 @@
 						<img src="assets/images/dice/dice-1.png" id="dice-1" class="img-responsive dice-number hide">
 						<span id="dice_first">Roll</span>
 					</div>
-					<button type="button" id="btn-roll-dice" class="btn btn-info form-control mt-50">ROLL</button>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            
-          </div>
-          <div class="panel">
-            <div class="panel-body">
-              <h3>Players</h3>
-              <hr>
-              <div class="row" id="player_list">
-
-              </div>
-            </div>
-          </div>
+					<button type="button" id="btn-roll-dice" class="btn btn-info form-control btn-theme mt-50">ROLL</button>
         </div>
 			</div>
 		</div>
 	</div>
 </div>
 
+<% include ./template/footer %>
 
-<script type="text/javascript">
-	
-</script>
-
-
-<script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
-
-</body>
-</html>
