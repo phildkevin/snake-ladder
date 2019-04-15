@@ -42,8 +42,12 @@ app.use((req, res, next) =>{
 })
 
 
-app.get('/', (req, res) => {
+app.get('/game', (req, res) => {
   res.render(appRoot + '/views/');
+});
+
+app.get('/', (req, res) => {
+  res.render(appRoot + '/views/home');
 });
 
 const main = async () =>{
