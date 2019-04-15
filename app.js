@@ -31,6 +31,17 @@ app.use(express.static(__dirname + '/public'));
 app.set("views", "/views");
 
 
+app.use((req, res, next) =>{
+  let cookie = req.cookies.client_id;
+
+  if(cookie === undefined){
+    res.cookie('client_id', uuid(), {maxAge: 90000, httpOnly: false});
+  }
+
+  next();
+})
+
+
 app.get('/', (req, res) => {
   res.render(appRoot + '/views/');
 });
@@ -38,6 +49,8 @@ app.get('/', (req, res) => {
 const main = async () =>{
   const db 		 = await dbConnection.connectDB(config.db);
   global.db 	 = db;
+
+  const gameMultiplayer = require("./game/multiplayer").initialize(redisClient, uuid, config);
   
 	// const routes = require('./routes/routes')(app, url, path, redisClient, bcrypt)
 

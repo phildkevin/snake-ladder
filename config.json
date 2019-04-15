@@ -7,7 +7,7 @@
       "url"					: "mongodb+srv://oWLMdbUser:QWwnOOp0HTi4aBqI@owl-cluster-x30fk.gcp.mongodb.net/admin",
       "id"					: "owl-messenger"
     },
-    "mqtt"          : "",
+    "mqtt"          : "ws://owl-mqtt.herokuapp.com:80",
     "redis"         : "redis-16491.c1.asia-northeast1-1.gce.cloud.redislabs.com",
     "redis_port"    : 16491,
     "redis_auth"    : "6OcrBjpdCehZDaVLpR6JApjPTwigfS94"
