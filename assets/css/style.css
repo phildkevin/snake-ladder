@@ -1,0 +1,33 @@
+.mt-50{
+  margin-top: 50px;
+}
+
+.dice span{
+  font-weight: 900;
+  font-size: 100px;
+}
+
+.main_table>tbody>tr>td{
+  padding: 30px !important;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+  font-weight: 600;
+}
+
+.roll_active{
+  background-color: #FF5733;
+  color: #fff;
+}
+
+.ladder1{
+  position: fixed;
+  width: 260px;
+  bottom: 110px;
+  left: 400px;
+  transform: rotate(-25deg);
+}
+
+.dice-number{
+  width: 150px;
+}
