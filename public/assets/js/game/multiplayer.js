@@ -10,17 +10,50 @@ $(document).on("click", "#matchmaking", function(){
 
 let matchMaking = () =>{
   let name = localStorage.getItem('name');
+  console.log(name)
+  if(name === null){
+    swal({
+      title: 'Matchmaking',
+      text: "Enter username",
+      input: 'text',
+      showCancelButton: true,
+      closeOnConfirm: false,
+    }).then(function (textinput) {
+      if (textinput === false) return false;
 
-  swal({
-    title: 'Matchmaking',
-    text: 'Finding Opponents',
-    type: 'info',
-    showCancelButton: false,
-    showConfirmButton: false,
-    closeOnClickOutside: false
-  })
+      if (textinput.value === "") {
+        swal.showInputError("You need to write something!");
+        return false
+      }
 
-  mqClient.publish('matchmaking', JSON.stringify({name, client_id}))
+      name = textinput.value;
+      localStorage.setItem("name", name);
+
+      swal({
+        title: 'Matchmaking',
+        text: 'Finding Opponents',
+        type: 'info',
+        showCancelButton: false,
+        showConfirmButton: false,
+        closeOnClickOutside: false
+      })
+    
+      mqClient.publish('matchmaking', JSON.stringify({name, client_id}))
+    })
+  }else{
+    swal({
+      title: 'Matchmaking',
+      text: 'Finding Opponents',
+      type: 'info',
+      showCancelButton: false,
+      showConfirmButton: false,
+      closeOnClickOutside: false
+    })
+  
+    mqClient.publish('matchmaking', JSON.stringify({name, client_id}))
+  }
+
+  
 }
 
 let joinGame = () =>{
