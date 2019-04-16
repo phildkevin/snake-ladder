@@ -10,6 +10,7 @@ var first_roll = 0;
     var rand = Math.floor(Math.random() * (+max - +min)) + +min; 
 
     $(this).addClass('hide');
+    $(this).prop('disable', true);
     $('#dice_first').addClass('hide');
     $('#dice-roll').removeClass('hide');
     $('.dice-number').addClass('hide');
@@ -18,8 +19,10 @@ var first_roll = 0;
     	$('#btn-roll-dice').removeClass('hide');
     	$('#dice-roll').addClass('hide');
     	$(`#dice-${rand}`).removeClass('hide');
-    	goUp(rand);
+      goUp(rand);
+      nextTurn();
     }, 1000);
+
 
 	});
 

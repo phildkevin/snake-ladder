@@ -79,6 +79,18 @@ let gameStart = (data) =>{
 
 }
 
+let playerTurn = (data) =>{
+  console.log(data)
+  if(data.next_turn == client_id){
+    $('#btn-roll-dice').prop('disabled', false);
+    $('#dice_first').html("Roll");
+  }else{
+    $('#btn-roll-dice').prop('disabled', true);
+  }
+
+  turn = data.next_turn;
+  player_turn = data.player_turn;
+}
 
 let plotGamePlayerList = (players) =>{
   if(players.length > 0){
@@ -87,8 +99,12 @@ let plotGamePlayerList = (players) =>{
       let you     = localStorage.getItem("name");
       let pdata   = JSON.parse(players[x]);
       let ifyou   = you == pdata.name ? "(You)" : pdata.name;
-      players_id.push(pdata.client_id);
-      player_turn.push(pdata.client_id);
+      
+      if(players_id.indexOf(pdata.client_id) == -1){
+        players_id.push(pdata.client_id);
+        player_turn.push(pdata.client_id);
+      }
+
       if(pdata.name == you){
         player += `
           <div class="other-player" id="span-${pdata.client_id}">
@@ -121,21 +137,26 @@ let sendDicePosition = (position) =>{
 }
 
 let nextTurn = (data) =>{
-  if(data.turn == client_id){
-    // console.log("Your turn")
+  if(turn == client_id){
     if(player_turn.indexOf(client_id) != -1){
       if(player_turn.length == 1){
         player_turn = players_id;
       }
-      player_turn = player_turn.splice(player_turn.indexOf(client_id), 1);
+
+      if(player_turn.indexOf(client_id) > -1){
+        player_turn.splice(player_turn.indexOf(client_id), 1);
+      }
+
       next_index  = Math.floor(Math.random() * Math.floor(player_turn.length));
       next_turn   = player_turn[next_index];
 
-      console.log(next_turn)
+      console.table({player_turn, players_id, client_id})
 
-      
+
+      console.log("[NEXT] : " + next_turn)
+
+      mqClient.publish(`room_${room}`, JSON.stringify({"action" : "turn", next_turn, player_turn}))
     }
-
   }
 }
 
@@ -151,7 +172,6 @@ mqClient.on('connect', () =>{
 
 mqClient.on('message', (topic, data) =>{
   data = JSON.parse(data.toString())
-  console.log(data)
   switch (topic){
     case client_id:
       swal({

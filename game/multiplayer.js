@@ -6,6 +6,10 @@ exports.initialize = (redis, uuid, config) => {
   var mqttClient  = mqtt.connect(config.mqtt, options);
   mqttClient.subscribe("#");
 
+  mqttClient.on("connect", () =>{
+    mqttClient.subscribe("#");
+  })
+
   mqttClient.on("message", (topic, data) =>{
     data = JSON.parse(data.toString())
     switch (topic){
