@@ -1,6 +1,8 @@
-let players   = [];
-let turn      = 1;
-let connected = 0;
+let players       = [];
+let players_id    = [];
+let turn          = "";
+let connected     = 0;
+let player_turn   = [];
 
 
 
@@ -52,12 +54,29 @@ let matchMaking = () =>{
   
     mqClient.publish('matchmaking', JSON.stringify({name, client_id}))
   }
-
-  
 }
 
 let joinGame = () =>{
+  console.log("[JOINING GAME] ROOM: " + room)
   mqClient.publish("join_room", JSON.stringify({room, client_id}));
+}
+
+let gameStart = (data) =>{
+  connected  = data.players.connected;
+  turn = data.players.first_turn;
+  delete data.players.connected;
+  delete data.players.first_turn;
+  players = Array.from(Object.values(data.players));
+  plotGamePlayerList(players);
+
+  $(`#span-${turn}`).addClass('active');
+  if(turn == client_id){
+    $('#btn-roll-dice').prop('disabled', false);
+    $('#dice_first').html("Roll");
+  }else{
+    $('#btn-roll-dice').prop('disabled', true);
+  }
+
 }
 
 
@@ -68,41 +87,67 @@ let plotGamePlayerList = (players) =>{
       let you     = localStorage.getItem("name");
       let pdata   = JSON.parse(players[x]);
       let ifyou   = you == pdata.name ? "(You)" : pdata.name;
-
+      players_id.push(pdata.client_id);
+      player_turn.push(pdata.client_id);
       if(pdata.name == you){
         player += `
-          <div class="other-player active">
+          <div class="other-player" id="span-${pdata.client_id}">
             <span class="other-player-info">${ifyou}<b class="other-player-stat">(title)</b></span>
           </div>
         `;
       }else{
         player += `
-          <div class="other-player">
+          <div class="other-player" id="span-${pdata.client_id}">
             <span class="other-player-info">${pdata.name}<b class="other-player-stat">(title)</b></span>
           </div>
         `;
       }
 
+      if(pdata.client_id == turn){
+        $('#dice_first').html(`${pdata.name} turn`);
+      }
+
 
     }
   }
-
   $('#other-player-list').html(player);
-
 }
 
 let sendDicePosition = (position) =>{
   let data = {action: "roll", position};
-  if(turn == 1){
+  if(turn == client_id){
     mqClient.publish(room, JSON.stringify(data));
   }
 }
 
-let playerTurn = (data) =>{
+let nextTurn = (data) =>{
   if(data.turn == client_id){
-    console.log("Your turn")
+    // console.log("Your turn")
+    if(player_turn.indexOf(client_id) != -1){
+      if(player_turn.length == 1){
+        player_turn = players_id;
+      }
+      player_turn = player_turn.splice(player_turn.indexOf(client_id), 1);
+      next_index  = Math.floor(Math.random() * Math.floor(player_turn.length));
+      next_turn   = player_turn[next_index];
+
+      console.log(next_turn)
+
+      
+    }
+
   }
 }
+
+
+mqClient.on('connect', () =>{
+  if(room != "" && room.length == 36){
+    mqClient.subscribe(client_id, {qos: 2});
+    mqClient.subscribe(`room_${room}`, {qos: 2});
+    joinGame();
+
+  }
+})
 
 mqClient.on('message', (topic, data) =>{
   data = JSON.parse(data.toString())
@@ -126,10 +171,7 @@ mqClient.on('message', (topic, data) =>{
     case `room_${room}`:
         switch (data.action){
           case "join":
-            connected = data.players.connected;
-            delete data.players.connected;
-            players = Array.from(Object.values(data.players));
-            plotGamePlayerList(players);
+              gameStart(data);
             break;
           case "roll":
               plotDicePosition(data);
@@ -145,10 +187,8 @@ mqClient.on('message', (topic, data) =>{
     
 });
 
-
-
-$(document).ready(function(){
-  if(room != "" && room.length == 36){
-    joinGame();
-  }
-})
+$(function() {
+  // if(room != "" && room.length == 36){
+  //   joinGame();
+  // }
+});

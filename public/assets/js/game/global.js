@@ -5,10 +5,10 @@ let client_id   = "client_" + getCookie('client_id');
 let url         = window.location.href;
 let room        = url.split("/").pop();
 let will        = {topic: "leavematch", payload: JSON.stringify({client_id, room})};
-let mqClient    = mqtt.connect(host, {clientId: client_id, qos: 1, will});
+let mqClient    = mqtt.connect(host, {clientId: client_id, qos: 2, will});
 
-mqClient.subscribe(client_id, {qos: 1});
-mqClient.subscribe(`room_${room}`, {qos: 1});
+mqClient.subscribe(client_id, {qos: 2});
+mqClient.subscribe(`room_${room}`, {qos: 2});
 
 
 

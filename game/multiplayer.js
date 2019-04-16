@@ -38,22 +38,28 @@ exports.initialize = (redis, uuid, config) => {
           redis.HINCRBY(`room_${data.room}`, "connected", -1);
         }
       })
+    }else{
+      redis.HDEL("matchmaking", data.client_id);
     }
   }
 
   let joinRoom = (data) =>{
     redis.HGET(`room_${data.room}`, data.client_id, (err, res) =>{
-      console.log(data.room)
+      console.log(["JOIN ROOM : client_id - " + data.client_id])
       if(res == null){
 
       }else{
+        redis.HINCRBY(`room_${data.room}`, "connected", 1);
         redis.HGETALL(`room_${data.room}`, (err, res) =>{
           console.log(`[SENDING GAME PLAYERS] room: ${data.room}`)
-          redis.HINCRBY(`room_${data.room}`, "connected", 1);
           mqttClient.publish(`room_${data.room}`, JSON.stringify({"action" : "join", "client_id" : data.client_id, "players": res}));
         })
       }
     })
+  }
+
+  let getRandomInt = (max) =>{
+    return Math.floor(Math.random() * Math.floor(max));
   }
 
 
@@ -73,12 +79,14 @@ exports.initialize = (redis, uuid, config) => {
 
             let room = uuid();
             let send = {players, room};
+            let turn = getRandomInt(2);
 
             redis.HDEL("matchmaking", p1.client_id);
             redis.HDEL("matchmaking", p2.client_id);
             redis.HSET(`room_${room}`, p1.client_id, JSON.stringify(p1));
             redis.HSET(`room_${room}`, p2.client_id, JSON.stringify(p2));
             redis.HSET(`room_${room}`, "connected", 0);
+            redis.HSET(`room_${room}`, "first_turn", data[turn][0]);
 
             // redis.EXPIRE(`room_${room}`, 20);
 
