@@ -1,11 +1,30 @@
-let room = "";
-let players = [];
-let turn    = 1;
+let players   = [];
+let turn      = 1;
+let connected = 0;
+
+
+
+$(document).on("click", "#matchmaking", function(){
+  matchMaking();
+})
 
 let matchMaking = () =>{
   let name = localStorage.getItem('name');
 
+  swal({
+    title: 'Matchmaking',
+    text: 'Finding Opponents',
+    type: 'info',
+    showCancelButton: false,
+    showConfirmButton: false,
+    closeOnClickOutside: false
+  })
+
   mqClient.publish('matchmaking', JSON.stringify({name, client_id}))
+}
+
+let joinGame = () =>{
+  mqClient.publish("join_room", JSON.stringify({room, client_id}));
 }
 
 
@@ -13,28 +32,30 @@ let plotGamePlayerList = (players) =>{
   if(players.length > 0){
     var player = ``;
     for(var x = 0; x < players.length; x++){
-      let you   = localStorage.getItem("name");
-      let ifyou = you == players[x].name ? "(You)" : players[x].name;
+      let you     = localStorage.getItem("name");
+      let pdata   = JSON.parse(players[x]);
+      let ifyou   = you == pdata.name ? "(You)" : pdata.name;
 
-      console.log(players[x].name);
-      if(players[x].name == you){
-        player = `
+      if(pdata.name == you){
+        player += `
           <div class="other-player active">
             <span class="other-player-info">${ifyou}<b class="other-player-stat">(title)</b></span>
           </div>
         `;
       }else{
-        player = `
+        player += `
           <div class="other-player">
-            <span class="other-player-info">${players[x].name}<b class="other-player-stat">(title)</b></span>
+            <span class="other-player-info">${pdata.name}<b class="other-player-stat">(title)</b></span>
           </div>
         `;
       }
 
-      $('#other-player-list').append(player);
 
     }
   }
+
+  $('#other-player-list').html(player);
+
 }
 
 let sendDicePosition = (position) =>{
@@ -44,25 +65,57 @@ let sendDicePosition = (position) =>{
   }
 }
 
-matchMaking();
-
-
+let playerTurn = (data) =>{
+  if(data.turn == client_id){
+    console.log("Your turn")
+  }
+}
 
 mqClient.on('message', (topic, data) =>{
   data = JSON.parse(data.toString())
   console.log(data)
   switch (topic){
     case client_id:
-      plotGamePlayerList(data.players);
-      mqClient.subscribe(data.room)
-      room    = data.room;
-      players = data.players;
+      swal({
+        title: 'Matchmaking',
+        text: 'Match Found',
+        type: 'success',
+        showCancelButton: false,
+        showConfirmButton: false,
+        closeOnClickOutside: false
+      });
+
+      setTimeout(() =>{
+        window.location.href = `/game/room/${data.room}`;
+      }, 2000)
+      
       break;
-    // case room:
-    //     if(data.action == "roll"){
-    //       plotDice(data);
-    //     }
-    //   break;
+    case `room_${room}`:
+        switch (data.action){
+          case "join":
+            connected = data.players.connected;
+            delete data.players.connected;
+            players = Array.from(Object.values(data.players));
+            plotGamePlayerList(players);
+            break;
+          case "roll":
+              plotDicePosition(data);
+            break;
+          case "turn":
+              playerTurn(data);
+            break;
+          case "win":
+            break;
+        }
+      break;
   }
     
 });
+
+
+
+$(document).ready(function(){
+  if(room != "" && room.length == 36){
+    joinGame();
+  }
+})

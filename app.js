@@ -28,26 +28,47 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended' : false}));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
+app.use('/game/room/',express.static(__dirname + '/public'));
+app.use('/room/',express.static(__dirname + '/public'));
 app.set("views", "/views");
 
 
 app.use((req, res, next) =>{
   let cookie = req.cookies.client_id;
-
   if(cookie === undefined){
     res.cookie('client_id', uuid(), {maxAge: 90000, httpOnly: false});
   }
-
   next();
 })
 
 
-app.get('/game', (req, res) => {
-  res.render(appRoot + '/views/');
+
+app.get('/game/room/:room', (req, res) => {
+  if(req.params.room == ""){
+    res.redirect("/room/404");
+  }else{
+    redisClient.GET(`room_${req.params.room}`, (err, re) =>{
+      if(re === null){
+        res.redirect("/room/404");
+      }else{
+        res.render(appRoot + '/views/');
+      }
+    })
+  }
 });
+
+app.get("/room/404", (req, res) =>{
+  res.render(appRoot + "/views/room404");
+})
 
 app.get('/', (req, res) => {
   res.render(appRoot + '/views/home');
+});
+
+
+
+app.use(function (req, res, next) {
+  res.status(404).send("404")
 });
 
 const main = async () =>{
