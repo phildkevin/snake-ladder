@@ -80,7 +80,8 @@ let gameStart = (data) =>{
 }
 
 let playerTurn = (data) =>{
-  console.log(data)
+  $('.other-player.active').removeClass('active');
+  $(`#span-${data.next_turn}`).addClass('active');
   if(data.next_turn == client_id){
     $('#btn-roll-dice').prop('disabled', false);
     $('#dice_first').html("Roll");
